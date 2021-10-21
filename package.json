@@ -1,8 +1,8 @@
 {
   "name": "react-dididi",
+  "author": "willx12123",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "willx12123 <willx12123@gmail.com>",
+  "main": "./dist/main.js",
   "license": "MIT",
   "devDependencies": {
     "@types/react": "^17.0.31",
