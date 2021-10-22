@@ -1,9 +1,9 @@
-type ClassType = { new (...args: any[]): object };
+type Constructor<T = any> = new (...args: any[]) => T;
 
-const instances = new Map<ClassType, object>();
+export const instances = new Map<Constructor<any>, object>();
 
-export function getInstance<T>(Service: { new (...args: any[]): T }): T {
-  const instance = instances.get(Service as unknown as ClassType);
+export function getInstance<T>(Service: Constructor<T>): T {
+  const instance = instances.get(Service);
   if (!instance) {
     throw new Error(`Instance ${Service.toString()} is not provide.`);
   }
@@ -15,25 +15,26 @@ export function setProvides(services: Array<{ new (...args: any[]): any }>) {
   services.forEach((service) => createService(service));
 }
 
-function createService(target: ClassType): object {
+function createService<T>(target: Constructor<T>): T {
   const instance = instances.get(target);
   if (instance) {
-    return instance;
+    return instance as unknown as T;
   }
 
   const providers = Reflect.getMetadata("design:paramtypes", target);
+  console.log(providers);
   if (!Array.isArray(providers)) {
     throw new Error(`Reflect fail: providers is not an array: ${providers}`);
   }
 
   if (providers.length === 0) {
     const service = new target();
-    instances.set(target, service);
+    instances.set(target, service as unknown as object);
     return service;
   }
 
-  const args = providers.map((provider: ClassType) => createService(provider));
+  const args = providers.map((provider: Constructor) => createService(provider));
   const service = new target(...args);
-  instances.set(target, service);
+  instances.set(target, service as unknown as object);
   return service;
 }
